@@ -1,0 +1,48 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "github-copilot/claude-opus-4.7",
+  "small_model": "github-copilot/claude-haiku-4.5",
+  "instructions": [
+    "AGENTS.md",
+    "docs/ARCHITECTURE.md",
+    "docs/DATA_MODEL.md",
+    "docs/SECURITY_AND_INFRA.md",
+    "jam_feature.md"
+  ],
+  "autoshare": false,
+  "autoupdate": true,
+  "permission": {
+    "edit": "ask",
+    "bash": {
+      "ls *": "allow",
+      "pwd": "allow",
+      "cat *": "allow",
+      "git status": "allow",
+      "git diff*": "allow",
+      "git log*": "allow",
+      "git show*": "allow",
+      "git branch*": "allow",
+      "npm run lint*": "allow",
+      "npm run test*": "allow",
+      "npm run build*": "allow",
+      "npm install*": "ask",
+      "uv run ruff *": "allow",
+      "uv run pytest*": "allow",
+      "uv run black*": "allow",
+      "uv sync": "allow",
+      "uv add*": "ask",
+      "firebase emulators:*": "allow",
+      "rm -rf *": "deny",
+      "git push*": "ask",
+      "git reset --hard*": "deny",
+      "gcloud *": "ask",
+      "terraform apply*": "ask",
+      "terraform destroy*": "deny",
+      "firebase deploy*": "ask",
+      "./deploy.sh*": "ask",
+      "./bootstrap.sh*": "ask",
+      "./dev.sh*": "ask",
+      "*": "ask"
+    }
+  }
+}

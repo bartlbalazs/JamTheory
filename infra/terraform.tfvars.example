@@ -1,0 +1,22 @@
+# ---------------------------------------------------------------------------
+# Example Terraform variable values — safe to commit.
+# Copy to terraform.tfvars (gitignored) and fill in real values.
+# ---------------------------------------------------------------------------
+
+project_id                = "your-gcp-project-id"
+region                    = "europe-west1"
+db_name                   = "(default)"
+firebase_app_display_name = "JamTheory"
+
+# YouTube Data API v3 key. Create in GCP console:
+#   APIs & Services → Credentials → Create credentials → API key.
+# Restrict to the "YouTube Data API v3" before committing to prod.
+youtube_api_key = "AIzaSy__REPLACE_ME__"
+
+# Optional: override function sizing.
+# generate_masterclass_memory  = "512M"
+# generate_masterclass_cpu     = "0.333"   # set to "1" when memory > 512Mi
+# generate_masterclass_timeout = 180
+# regenerate_licks_memory      = "512M"
+# regenerate_licks_cpu         = "0.333"
+# regenerate_licks_timeout     = 120

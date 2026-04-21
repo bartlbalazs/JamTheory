@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Build output
+dist/
+tmp/
+coverage/
+
+# Vite
+.vite/
+
+# Editor / IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Firebase & environment secrets — copy from *.example and fill in real values
+# NOTE: src/environments/environment.prod.ts IS committed as a safe
+# placeholder so type-checks pass in a fresh clone. It's overwritten by
+# `deploy.sh --hosting` at deploy time. No secrets belong in this repo.
+.firebaserc
+.firebase-emulator-data/
+firebase.deploy.json
