@@ -42,13 +42,15 @@ One document per completed practice session.
 ```json
 {
   "youtubeVideoId": "dQw4w9WgXcQ",
-  "date": "2026-04-21T12:00:00Z",
-  "minutesPlayed": 25
+  "date": "2026-04-21",
+  "minutesPlayed": 25,
+  "notes": "Worked on the bend on the III chord."
 }
 ```
 
-- `minutesPlayed` — integer. The frontend rounds elapsed seconds up to the
-  nearest minute.
+- `date` — ISO date (YYYY-MM-DD) reflecting the day of the session.
+- `minutesPlayed` — non-negative integer.
+- `notes` — optional free-form string.
 
 ---
 
@@ -156,12 +158,19 @@ Success response:
 ```json
 {
   "result": {
+    "title":         "Slow Blues Backing Track in A Minor - 70 BPM",
+    "description":   "Key: A Minor | Tempo: 70 BPM | Chords: Am - Dm - E7 ...",
     "trackInfo":     { ... },
     "rhythmSection": { ... },
     "leadSection":   { ... }
   }
 }
 ```
+
+`title` and `description` are echoed back from the YouTube metadata so the
+frontend can populate the `backing_tracks/{videoId}` cache document without
+re-fetching. They are stripped before the masterclass body is stored under
+`backing_tracks/{videoId}/variants/{skillLevel}`.
 
 Chord-fallback response (when the description has no chords and no
 `userChords` was provided):

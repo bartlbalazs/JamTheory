@@ -92,7 +92,7 @@ export function isMasterclass(
 
 async function callCallable<T>(
   url: string,
-  data: Record<string, unknown>,
+  data: object,
 ): Promise<T> {
   const idToken = await getIdToken();
   if (!idToken) {
