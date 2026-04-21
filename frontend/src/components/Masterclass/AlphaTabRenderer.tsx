@@ -70,7 +70,7 @@ export function AlphaTabRenderer({ alphatex, className }: Props): JSX.Element {
     <div className={className}>
       <div
         ref={containerRef}
-        className="bg-white text-black rounded p-2 overflow-x-auto"
+        className="alphatab-container bg-white rounded-lg p-3 overflow-x-auto"
       />
       {error ? (
         <p className="mt-2 text-sm text-red-400">AlphaTab error: {error}</p>

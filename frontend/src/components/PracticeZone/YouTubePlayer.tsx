@@ -15,14 +15,14 @@ export function YouTubePlayer({
 
   if (!videoId) {
     return (
-      <div className="aspect-video w-full rounded bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-500 text-sm">
+      <div className="aspect-video w-full rounded-xl bg-[rgb(var(--bg-surface))] border border-[color:var(--border-subtle)] flex items-center justify-center text-[rgb(var(--text-muted))] text-sm">
         Paste a YouTube URL to begin.
       </div>
     );
   }
 
   return (
-    <div className="aspect-video w-full rounded overflow-hidden bg-black">
+    <div className="aspect-video w-full rounded-xl overflow-hidden bg-black border border-[color:var(--border-subtle)] shadow-lg">
       <YouTube
         videoId={videoId}
         opts={{

@@ -56,8 +56,8 @@ function Gate(): JSX.Element {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-950 text-neutral-400">
-        Loading…
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-[rgb(var(--brand-primary))] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -89,44 +89,38 @@ function Dashboard(): JSX.Element {
     }
 
     setLoading(true);
+    setAskForChords(false);
     try {
-      // 1. Cache lookup (skip if user is providing manual chords —
-      //    that implies we already know the cache doesn't hold a variant).
       if (!userChords) {
         const cached = await getCachedVariant(videoId, skillLevel);
         if (cached) {
           setMasterclass(cached);
           setCurrentVideoId(videoId);
-          setAskForChords(false);
           return;
         }
       }
 
-      // 2. Backend call.
       const resp = await generateMasterclass({
         youtubeVideoId: videoId,
         skillLevel,
         ...(userChords ? { userChords } : {}),
       });
+      
       if (needsChords(resp)) {
         setAskForChords(true);
         setMasterclass(null);
         setCurrentVideoId(videoId);
         return;
       }
+      
       if (!isMasterclass(resp)) {
         throw new Error('Unexpected response from backend.');
       }
-      // Split off the YouTube metadata echoed back by the backend. It is
-      // only used for the cache-write and must NOT leak into the
-      // masterclass held in component state (the cached document shape
-      // is strictly { trackInfo, rhythmSection, leadSection }).
+      
       const { title, description, ...masterclassOnly } = resp;
       setMasterclass(masterclassOnly);
-      setAskForChords(false);
       setCurrentVideoId(videoId);
 
-      // 3. Cache write (best-effort; ignore errors so UX isn't blocked).
       try {
         await saveGeneratedMasterclass({
           videoId,
@@ -138,7 +132,6 @@ function Dashboard(): JSX.Element {
           uid,
         });
       } catch (cacheErr) {
-        // eslint-disable-next-line no-console
         console.warn('Cache write failed:', cacheErr);
       }
     } catch (e) {
@@ -167,29 +160,43 @@ function Dashboard(): JSX.Element {
   const videoIdForPlayer = useMemo(() => parseVideoId(url), [url]);
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      <header className="flex items-center justify-between px-6 py-3 border-b border-neutral-800">
-        <h1 className="text-lg font-semibold">
-          JamTheory <span className="text-neutral-500">— Silent Supervisor</span>
-        </h1>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="text-neutral-400">
-            {userDoc?.displayName ?? firebaseUser?.email}
-          </span>
-          <button
-            type="button"
-            onClick={() => void signOut()}
-            className="py-1 px-3 rounded bg-neutral-800 hover:bg-neutral-700"
-          >
-            Sign out
-          </button>
+    <div className="min-h-screen flex flex-col font-sans">
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-50 bg-[rgb(var(--bg-surface))] border-b border-[color:var(--border-subtle)] shadow-sm backdrop-blur-md bg-opacity-80">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[rgb(var(--brand-primary))] to-[rgb(var(--brand-accent))] shadow-lg flex items-center justify-center font-bold text-white tracking-tighter">
+              JT
+            </div>
+            <h1 className="text-xl font-bold tracking-tight text-[rgb(var(--text-primary))]">
+              Jam<span className="text-[rgb(var(--brand-primary))]">Theory</span>
+            </h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex flex-col items-end">
+              <span className="text-sm font-medium text-[rgb(var(--text-primary))] leading-tight">
+                {userDoc?.displayName ?? firebaseUser?.email}
+              </span>
+              <span className="text-[10px] text-[rgb(var(--brand-primary))] uppercase tracking-wider font-bold">
+                {userDoc?.skillLevel ?? 'Active'}
+              </span>
+            </div>
+            <button
+              onClick={() => void signOut()}
+              className="text-xs font-semibold text-[rgb(var(--text-muted))] hover:text-white transition-colors"
+            >
+              SIGN OUT
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-[1400px] mx-auto">
-        {/* LEFT: Practice Zone */}
-        <div className="space-y-4">
-          <YouTubePlayer videoId={videoIdForPlayer} />
+      {/* Main Content Area */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative">
+        
+        {/* Left Column (Sticky Player & Controls) */}
+        <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-6 flex flex-col max-h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar pr-2 pb-6">
+          
           <TrackInput
             url={url}
             onUrlChange={setUrl}
@@ -201,25 +208,79 @@ function Dashboard(): JSX.Element {
             loading={loading}
             error={error}
           />
-          <PracticeLogger uid={uid} videoId={currentVideoId} />
+
+          <div className="surface-card p-1 shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+             <YouTubePlayer videoId={videoIdForPlayer} />
+          </div>
+
+          {currentVideoId ? (
+             <PracticeLogger uid={uid} videoId={currentVideoId} />
+          ) : (
+            <div className="surface-card p-6 flex flex-col items-center justify-center text-center opacity-60">
+              <div className="w-12 h-12 rounded-full bg-[rgb(var(--bg-surface-elevated))] flex items-center justify-center mb-3 text-[rgb(var(--text-muted))]">
+                 🎵
+              </div>
+              <p className="text-sm font-medium text-[rgb(var(--text-secondary))]">Waiting for Track</p>
+              <p className="text-xs text-[rgb(var(--text-muted))] mt-1">Paste a YouTube URL above and hit Analyze to generate your masterclass.</p>
+            </div>
+          )}
         </div>
 
-        {/* RIGHT: Masterclass */}
-        <div className="space-y-4">
-          {!masterclass ? (
-            <div className="rounded-lg bg-neutral-900 border border-neutral-800 p-6 text-center text-neutral-500 text-sm">
-              Your masterclass will appear here after you analyze a track.
+        {/* Right Column (Masterclass Content) */}
+        <div className="lg:col-span-7 space-y-6 pb-20">
+          {!masterclass && !loading && (
+             <div className="h-full min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-[color:var(--border-strong)] rounded-2xl p-12 text-center bg-gradient-to-b from-transparent to-[rgba(var(--brand-primary),0.02)]">
+                 <div className="w-16 h-16 mb-4 rounded-2xl bg-gradient-to-tr from-[rgb(var(--brand-primary))] to-[rgb(var(--brand-accent))] shadow-[0_0_30px_rgba(var(--brand-primary),0.3)] flex items-center justify-center text-2xl">
+                    🎸
+                 </div>
+                 <h2 className="text-2xl font-bold text-[rgb(var(--text-primary))] mb-2">The Silent Supervisor</h2>
+                 <p className="text-[rgb(var(--text-muted))] max-w-md">
+                   Your data-driven AI guitar coach. Paste a backing track URL on the left to instantly generate a custom lesson plan tailored to your skill level.
+                 </p>
+             </div>
+          )}
+
+          {loading && (
+            <div className="space-y-6">
+              <div className="surface-card p-6 accent-glow-top animate-pulse-subtle">
+                <div className="h-6 w-1/3 bg-[rgb(var(--bg-surface-elevated))] rounded mb-4"></div>
+                <div className="h-4 w-full bg-[rgb(var(--bg-surface-elevated))] rounded mb-2"></div>
+                <div className="h-4 w-2/3 bg-[rgb(var(--bg-surface-elevated))] rounded"></div>
+              </div>
+              <div className="surface-card p-6 animate-pulse-subtle">
+                <div className="h-6 w-1/4 bg-[rgb(var(--bg-surface-elevated))] rounded mb-6"></div>
+                <div className="flex gap-4 mb-4">
+                  <div className="h-24 w-16 bg-[rgb(var(--bg-surface-elevated))] rounded"></div>
+                  <div className="h-24 w-16 bg-[rgb(var(--bg-surface-elevated))] rounded"></div>
+                  <div className="h-24 w-16 bg-[rgb(var(--bg-surface-elevated))] rounded"></div>
+                </div>
+                <div className="h-4 w-full bg-[rgb(var(--bg-surface-elevated))] rounded"></div>
+              </div>
+               <div className="surface-card p-6 animate-pulse-subtle">
+                <div className="h-6 w-1/4 bg-[rgb(var(--bg-surface-elevated))] rounded mb-4"></div>
+                <div className="h-32 w-full bg-[rgb(var(--bg-surface-elevated))] rounded"></div>
+              </div>
             </div>
-          ) : (
-            <>
-              <VibeTheory info={masterclass.trackInfo} />
-              <RhythmSection data={masterclass.rhythmSection} />
-              <LeadSection data={masterclass.leadSection} />
-              <VocabularyLicks
-                licks={masterclass.leadSection.vocabularyLicks}
-                onRegenerate={handleRegenerateLicks}
-              />
-            </>
+          )}
+
+          {masterclass && !loading && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="pl-4 border-l-4 border-[rgb(var(--brand-accent))]">
+                <VibeTheory info={masterclass.trackInfo} />
+              </div>
+              <div className="pl-4 border-l-4 border-[rgb(var(--brand-primary))]">
+                <RhythmSection data={masterclass.rhythmSection} />
+              </div>
+              <div className="pl-4 border-l-4 border-orange-500">
+                <LeadSection data={masterclass.leadSection} />
+              </div>
+              <div className="pl-4 border-l-4 border-pink-500">
+                <VocabularyLicks
+                  licks={masterclass.leadSection.vocabularyLicks}
+                  onRegenerate={handleRegenerateLicks}
+                />
+              </div>
+            </div>
           )}
         </div>
       </main>

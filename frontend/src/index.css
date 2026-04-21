@@ -2,21 +2,142 @@
 @tailwind components;
 @tailwind utilities;
 
-html,
-body,
-#root {
-  height: 100%;
+@layer base {
+  :root {
+    /* Core Brand Colors - Easily changeable for white-labeling */
+    --brand-primary: 99, 102, 241; /* Indigo 500 */
+    --brand-primary-hover: 79, 70, 229; /* Indigo 600 */
+    --brand-accent: 16, 185, 129; /* Emerald 500 */
+    
+    /* Backgrounds (Dark Studio Theme) */
+    --bg-base: 9, 9, 11; /* Neutral 950 */
+    --bg-surface: 23, 23, 23; /* Neutral 900 */
+    --bg-surface-elevated: 38, 38, 38; /* Neutral 800 */
+    
+    /* Borders & Lines */
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-strong: rgba(255, 255, 255, 0.1);
+    
+    /* Text */
+    --text-primary: 250, 250, 250; /* Neutral 50 */
+    --text-secondary: 163, 163, 163; /* Neutral 400 */
+    --text-muted: 115, 115, 115; /* Neutral 500 */
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-[rgb(var(--bg-base))] text-[rgb(var(--text-primary))] antialiased selection:bg-[rgba(var(--brand-primary),0.3)] selection:text-white font-sans;
+  }
 }
 
-body {
-  background-color: #0f1115;
-  color: #e5e7eb;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
+@layer components {
+  /* Premium Glass/Surface Card */
+  .surface-card {
+    @apply bg-[rgb(var(--bg-surface))] border border-[color:var(--border-subtle)] rounded-xl shadow-lg backdrop-blur-sm relative overflow-hidden;
+  }
+  
+  /* Primary Button */
+  .btn-primary {
+    @apply relative inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 rounded-lg bg-[rgb(var(--brand-primary))] hover:bg-[rgb(var(--brand-primary-hover))] shadow-[0_0_15px_rgba(var(--brand-primary),0.3)] hover:shadow-[0_0_25px_rgba(var(--brand-primary),0.5)] focus:outline-none focus:ring-2 focus:ring-[rgba(var(--brand-primary),0.5)] focus:ring-offset-2 focus:ring-offset-[rgb(var(--bg-base))] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  }
+
+  /* Secondary/Subtle Button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-[rgb(var(--text-primary))] transition-all duration-200 rounded-lg bg-[rgb(var(--bg-surface-elevated))] hover:bg-white/10 border border-[color:var(--border-subtle)] focus:outline-none focus:ring-2 focus:ring-white/20 focus:ring-offset-2 focus:ring-offset-[rgb(var(--bg-base))] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Modern Input Field */
+  .input-modern {
+    @apply w-full rounded-lg bg-[rgba(0,0,0,0.2)] border border-[color:var(--border-strong)] px-3 py-2.5 text-sm text-[rgb(var(--text-primary))] placeholder:text-[rgb(var(--text-muted))] transition-all duration-200 focus:outline-none focus:border-[rgb(var(--brand-primary))] focus:ring-1 focus:ring-[rgb(var(--brand-primary))] focus:bg-[rgba(var(--brand-primary),0.02)];
+  }
+
+  /* Beautiful scrollbar for the main content area */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-neutral-800 rounded-full;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-700;
+  }
+}
+
+/* 
+ * AlphaTab Theming (Dark Mode Override)
+ * AlphaTab injects its own canvas/svg. We use CSS filters and specific overrides
+ * to force it into our beautiful dark theme without altering the library's core.
+ */
+.at-cursor-bar {
+  background: rgba(var(--brand-primary), 0.2) !important;
+}
+.at-selection {
+  background: rgba(var(--brand-primary), 0.3) !important;
+}
+/* Invert the raw AlphaTab output (which is black on white by default) */
+.alphatab-container svg {
+  filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(0.9);
+}
+/* Fix SVG text aliasing after invert */
+.alphatab-container svg text {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle glowing accent line for cards */
+.accent-glow-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(var(--brand-primary), 0.8), transparent);
+  opacity: 0.5;
+}
+
+/* Skeleton Loading Animation */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+/* Entry Animations */
+@keyframes fade-in-slide-up {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-slide-down {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-zoom {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes just-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.animate-in {
+  animation: fade-in-slide-up 0.5s ease-out forwards;
+}
+.animate-in.slide-in-from-top-2 {
+  animation-name: fade-in-slide-down;
+}
+.animate-in.zoom-in-95 {
+  animation-name: fade-in-zoom;
+}
+.animate-in.fade-in:not(.slide-in-from-bottom-4):not(.slide-in-from-bottom-2):not(.slide-in-from-top-2):not(.zoom-in-95) {
+  animation-name: just-fade-in;
 }

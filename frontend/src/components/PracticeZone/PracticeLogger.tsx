@@ -6,11 +6,6 @@ interface Props {
   videoId: string | null;
 }
 
-/**
- * PracticeLogger — "Log Session" form. Writes to
- * `users/{uid}/practice_logs/{auto}`. Iteration 1 keeps the form minimal:
- * minutes played + optional note. Date defaults to today.
- */
 export function PracticeLogger({ uid, videoId }: Props): JSX.Element {
   const [minutes, setMinutes] = useState<number>(15);
   const [notes, setNotes] = useState<string>('');
@@ -32,8 +27,9 @@ export function PracticeLogger({ uid, videoId }: Props): JSX.Element {
         minutesPlayed: minutes,
         notes: notes.trim() || undefined,
       });
-      setFeedback('Session logged.');
+      setFeedback('Practice session logged!');
       setNotes('');
+      setTimeout(() => setFeedback(null), 3000);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to log session.');
     } finally {
@@ -42,47 +38,67 @@ export function PracticeLogger({ uid, videoId }: Props): JSX.Element {
   };
 
   return (
-    <div className="rounded-lg bg-neutral-900 border border-neutral-800 p-4 space-y-3">
-      <h2 className="text-lg font-semibold">Log Session</h2>
+    <div className="surface-card p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-bold tracking-wide">Log Session</h2>
+        <div className="w-8 h-8 rounded-full bg-[rgb(var(--bg-surface-elevated))] flex items-center justify-center text-[rgb(var(--brand-accent))] shadow-inner">
+           ✓
+        </div>
+      </div>
+      
       {!videoId ? (
-        <p className="text-sm text-neutral-500">
-          Start a track first to log a practice session.
-        </p>
-      ) : null}
-      <label className="block text-sm">
-        <span className="text-neutral-400">Minutes practiced</span>
-        <input
-          type="number"
-          min={0}
-          step={1}
-          value={minutes}
-          onChange={(e) => setMinutes(parseInt(e.target.value || '0', 10))}
-          className="mt-1 w-full rounded bg-neutral-950 border border-neutral-800 px-2 py-1.5 text-sm focus:outline-none focus:border-indigo-500"
-        />
-      </label>
-      <label className="block text-sm">
-        <span className="text-neutral-400">Notes (optional)</span>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          rows={2}
-          className="mt-1 w-full rounded bg-neutral-950 border border-neutral-800 px-2 py-1.5 text-sm focus:outline-none focus:border-indigo-500"
-        />
-      </label>
-      <button
-        type="button"
-        disabled={!canSubmit}
-        onClick={handleSubmit}
-        className="w-full py-2 rounded bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 font-medium text-sm"
-      >
-        {busy ? 'Saving…' : 'Log session'}
-      </button>
-      {feedback ? (
-        <p className="text-sm text-emerald-400">{feedback}</p>
-      ) : null}
-      {error ? (
-        <p className="text-sm text-red-400">{error}</p>
-      ) : null}
+        <div className="text-sm text-[rgb(var(--text-muted))] bg-[rgba(0,0,0,0.2)] p-3 rounded-lg border border-[color:var(--border-subtle)] text-center">
+          Start a track above to log your practice time.
+        </div>
+      ) : (
+        <div className="space-y-4 animate-in fade-in">
+          <label className="block text-sm">
+            <span className="text-[rgb(var(--text-secondary))] font-medium mb-1.5 block">Minutes Practiced</span>
+            <div className="flex items-center">
+              <input
+                type="number"
+                min={0}
+                step={1}
+                value={minutes}
+                onChange={(e) => setMinutes(parseInt(e.target.value || '0', 10))}
+                className="input-modern w-24 text-center font-mono font-bold text-lg"
+              />
+              <span className="ml-3 text-[rgb(var(--text-muted))]">mins</span>
+            </div>
+          </label>
+          
+          <label className="block text-sm">
+            <span className="text-[rgb(var(--text-secondary))] font-medium mb-1.5 block">Notes <span className="text-[rgb(var(--text-muted))] font-normal">(Optional)</span></span>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              placeholder="What did you focus on? (e.g. nailing the tricky bend in the Medium lick)"
+              className="input-modern resize-none custom-scrollbar"
+            />
+          </label>
+          
+          <button
+            type="button"
+            disabled={!canSubmit}
+            onClick={handleSubmit}
+            className="w-full relative inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white transition-all duration-200 rounded-lg bg-[rgb(var(--brand-accent))] hover:bg-emerald-400 shadow-[0_0_15px_rgba(var(--brand-accent),0.2)] hover:shadow-[0_0_25px_rgba(var(--brand-accent),0.4)] disabled:opacity-50 disabled:cursor-not-allowed group"
+          >
+            {busy ? 'Saving...' : 'Log Practice Time'}
+          </button>
+          
+          {feedback ? (
+            <div className="p-2 text-center text-[rgb(var(--brand-accent))] text-sm font-medium bg-[rgba(var(--brand-accent),0.1)] rounded border border-[rgba(var(--brand-accent),0.2)] animate-in zoom-in-95">
+              {feedback}
+            </div>
+          ) : null}
+          {error ? (
+            <div className="p-2 text-center text-red-400 text-sm bg-red-400/10 rounded border border-red-400/20">
+              {error}
+            </div>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }
