@@ -26,10 +26,11 @@ infra/.build/
 frontend/firebase.deploy.json
 frontend/.firebaserc
 
-# NOTE: frontend/src/environments/environment.prod.ts IS committed as a
-# placeholder so fresh clones build without `deploy.sh --hosting`. The
-# placeholder is overwritten in-place by deploy.sh; never commit the
-# overwritten version with real project values.
+# frontend/src/environments/environment.prod.ts is committed as a placeholder
+# (so fresh clones build) but `deploy.sh --hosting` overwrites it in-place
+# with real project values. Ignore those local overwrites so they don't
+# accidentally get committed.
+frontend/src/environments/environment.prod.ts
 
 # Python
 __pycache__/
